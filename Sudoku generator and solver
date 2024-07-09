@@ -1,0 +1,124 @@
+import random
+
+class Sudoku:
+    def __init__(self):
+        self.board = [[0]*9 for _ in range(9)]
+
+    def is_valid(self, row, col, num):
+        """
+        Checks if it's possible to place a number in the given position
+        """
+        # Check the row
+        for x in range(9):
+            if self.board[row][x] == num:
+                return False
+
+        # Check the column
+        for x in range(9):
+            if self.board[x][col] == num:
+                return False
+
+        # Check the box
+        start_row = row - row % 3
+        start_col = col - col % 3
+        for i in range(3):
+            for j in range(3):
+                if self.board[i + start_row][j + start_col] == num:
+                    return False
+        return True
+
+    def solve_sudoku(self):
+        """
+        Solves the Sudoku puzzle using backtracking
+        """
+        for i in range(9):
+            for j in range(9):
+                if self.board[i][j] == 0:
+                    for num in range(1, 10):
+                        if self.is_valid(i, j, num):
+                            self.board[i][j] = num
+                            if self.solve_sudoku():
+                                return True
+                            self.board[i][j] = 0
+                    return False
+        return True
+
+    def generate_sudoku(self, difficulty):
+        """
+        Generates a Sudoku puzzle with the given difficulty level
+        """
+        # Fill the board with random numbers
+        for i in range(9):
+            for j in range(9):
+                self.board[i][j] = random.randint(1, 9)
+
+        # Remove numbers to create a puzzle
+        for i in range(9):
+            for j in range(9):
+                if random.random() < difficulty:
+                    self.board[i][j] = 0
+
+        # Make sure the puzzle has a unique solution
+        self.solve_sudoku()
+        return self.board
+
+    def give_hint(self):
+        """
+        Gives a hint by filling in a random empty cell
+        """
+        for i in range(9):
+            for j in range(9):
+                if self.board[i][j] == 0:
+                    for num in range(1, 10):
+                        if self.is_valid(i, j, num):
+                            self.board[i][j] = num
+                            return
+                    return
+
+    def print_board(self):
+        """
+        Prints the Sudoku board in a nice format
+        """
+        for i in range(9):
+            if i % 3 == 0 and i!= 0:
+                print("- - - - - - - - - - - -")
+            for j in range(9):
+                if j % 3 == 0 and j!= 0:
+                    print(" | ", end="")
+                if j == 8:
+                    print(self.board[i][j])
+                else:
+                    print(str(self.board[i][j]) + " ", end="")
+
+    def play(self):
+        """
+        Plays the Sudoku game
+        """
+        print("Welcome to Sudoku!")
+        difficulty = float(input("Enter difficulty level (0-1): "))
+        self.generate_sudoku(difficulty)
+        print("Here's your puzzle:")
+        self.print_board()
+        while True:
+            print("Options:")
+            print("1. Solve")
+            print("2. Give hint")
+            print("3. Quit")
+            choice = input("Enter your choice: ")
+            if choice == "1":
+                self.solve_sudoku()
+                print("Solved!")
+                self.print_board()
+                break
+            elif choice == "2":
+                self.give_hint()
+                print("Here's a hint:")
+                self.print_board()
+            elif choice == "3":
+                break
+            else:
+                print("Invalid choice. Try again!")
+
+if __name__ == "__main__":
+    sudoku = Sudoku()
+    sudoku.play()
